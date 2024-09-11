@@ -1,10 +1,27 @@
+import 'dart:convert';
 import 'package:movie_app/common/utils.dart';
 import 'package:movie_app/models/movie_model.dart';
+import 'package:http/http.dart' as http;
 
 const baseUrl = 'https://api.themoviedb.org/3/';
 const key = '?api_key=$apiKey';
 
+
 class ApiServices {
+
+Future<Result>  getTopRatedMovies() async{
+  const endpoint = "movie/top_rated";
+  final url = Uri.parse("$baseUrl$endpoint$key");
+  http.get(url);
+  final response = await http.get(url);
+  if(response.statusCode == 200){
+    final json = jsonDecode(response.body);
+    final result = Result.fromJson(json);
+    return result;
+  } 
+  throw Exception('Ocorreu um erro');
+}
+
   Future<List<Movie>> getMovies() async {
     await Future.delayed(
         const Duration(seconds: 5)); // Simulação de carregamento
