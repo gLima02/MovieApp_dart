@@ -12,11 +12,11 @@ class TopRatedPage extends StatefulWidget {
 
 class _TopRatedPageState extends State<TopRatedPage> {
   ApiServices apiServices = ApiServices();
-  late Future<Result> topRatedMoviesFuture;
+  late Future<Result> moviesFuture;
 
   @override
   void initState() {
-    topRatedMoviesFuture = apiServices.getTopRatedMovies();
+    moviesFuture = apiServices.getTopRatedMovies();
     super.initState();
   }
 
@@ -24,25 +24,34 @@ class _TopRatedPageState extends State<TopRatedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Top Hated Movies'),
+        title: const Text('Top Rated Movies'),
       ),
       body: FutureBuilder<Result>(
-        future: topRatedMoviesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.movies.length,
-              itemBuilder: (context, index) {
-                var movie = snapshot.data!.movies[index];
-                return TopHatedMovie(movie: movie);
-              },
+          future: moviesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemCount: snapshot.data!.movies.length,
+                itemBuilder: (context, index) {
+                  return TopRatedMovie(movie: snapshot.data!.movies[index]);
+                },
+              );
+            }
+
+            return const Center(
+              child: Text('No data found'),
             );
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
+          }),
     );
   }
 }
